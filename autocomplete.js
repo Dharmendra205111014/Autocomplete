@@ -27,8 +27,14 @@ autocomplete.prototype.display = function() {
   this.createTemplate();
   var self = this;
   document.getElementById(this.inputBox.id+'InputBox').addEventListener('keyup', function() {
-    var val = this.value;
-    self.getInputText.call(self, val);
+    if (event.which === 40) {
+      self.heilightSuggestionDown();
+    } else if (event.which === 38) {
+      self.heilightSuggestionUp();
+    } else {
+      var val = this.value;
+      self.getInputText.call(self, val);
+    }
   });
 };
 
@@ -56,8 +62,8 @@ autocomplete.prototype.buildSuggestionBox = function(val) {
 autocomplete.prototype.createMetaData = function(val) {
   var resultArr = [];
   for (var i=0; i<this.dataStore.length; i++) {
-    var str = this.dataStore[i];
-    if (str.indexOf(val) !== -1) {
+    var str = this.dataStore[i].toLowerCase();
+    if (str.indexOf(val.toLowerCase()) !== -1) {
       resultArr.push(this.dataStore[i]);
     }
   }
