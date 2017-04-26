@@ -1,3 +1,6 @@
+var SELECTED_COLOR = '#F0E1C5';
+var UNSELECTED_COLOR = 'white';
+
 var autocomplete = function (obj) {
   this.dataStore = obj.dataArray || [];
   this.inputBox = document.getElementById(obj.inputBox);
@@ -40,6 +43,14 @@ autocomplete.prototype.display = function() {
       self.getInputText.call(self, val);
     }
   });
+
+  var content_area = document.getElementById('autoCompleteSuggestionBox');
+  document.body.addEventListener("click", function(e) {
+  var target = e.target || e.srcElement;
+  if (target !== content_area && !isChildOf(target, content_area)) {
+    self.close();
+  }
+}, false);
 };
 
 autocomplete.prototype.selectedData = function() {
@@ -52,10 +63,10 @@ autocomplete.prototype.heilightSuggestionDown = function() {
       this.selectedIndex++;
     }
   if(this.selectedIndex !==0 && document.getElementById('acList').childNodes[this.selectedIndex-1]) {
-    document.getElementById('acList').childNodes[this.selectedIndex-1].style.background = 'white';
+    document.getElementById('acList').childNodes[this.selectedIndex-1].style.background = UNSELECTED_COLOR;
   }
   if(document.getElementById('acList').childNodes[this.selectedIndex]) {
-    document.getElementById('acList').childNodes[this.selectedIndex].style.background = 'red';
+    document.getElementById('acList').childNodes[this.selectedIndex].style.background = SELECTED_COLOR;
     this.upSelected = this.selectedIndex;
   }
   console.log(this.selectedIndex +'Down pressed, selected data is '+ this.metaData[this.query][this.selectedIndex]);
@@ -63,13 +74,13 @@ autocomplete.prototype.heilightSuggestionDown = function() {
 
 autocomplete.prototype.heilightSuggestionUp = function() {
   if(document.getElementById('acList').childNodes[this.selectedIndex]) {
-    document.getElementById('acList').childNodes[this.selectedIndex].style.background = 'white';
+    document.getElementById('acList').childNodes[this.selectedIndex].style.background = UNSELECTED_COLOR;
   }
   if(this.selectedIndex>0) {
       --this.selectedIndex;
   }
   if(document.getElementById('acList').childNodes[this.selectedIndex]) {
-    document.getElementById('acList').childNodes[this.selectedIndex].style.background = 'red';
+    document.getElementById('acList').childNodes[this.selectedIndex].style.background = SELECTED_COLOR;
     this.downSelect = this.selectedIndex;
   }
   console.log(this.selectedIndex +'Up pressed, selected data is '+ this.metaData[this.query][this.selectedIndex]);
@@ -97,6 +108,16 @@ autocomplete.prototype.buildSuggestionBox = function(val) {
     result+='</ul>';
     this.suggestionBox.innerHTML = result;
   }
+  if(document.getElementById("acList")) {
+    var node = document.getElementById("acList").childNodes;
+    var self = this;
+    for(var i=0; i<node.length; i++) {
+      node[i].addEventListener("click", function(e) {
+        self.dataInputBox.value = this.innerHTML;
+        self.close();
+      });
+    }
+  }
 }
 
 autocomplete.prototype.createMetaData = function(val) {
@@ -111,5 +132,17 @@ autocomplete.prototype.createMetaData = function(val) {
 };
 
 autocomplete.prototype.close = function() {
-  document.getElementById('acList').style.display = "none";
+  if(document.getElementById('acList')) {
+    document.getElementById('acList').style.display = "none";
+  }
 };
+
+function isChildOf(child, parent) {
+  if (child.parentNode === parent) {
+    return true;
+  } else if (child.parentNode === null) {
+    return false;
+  } else {
+    return isChildOf(child.parentNode, parent);
+  }
+}
